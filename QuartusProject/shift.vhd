@@ -1,0 +1,31 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+--  Uncomment the following lines to use the declarations that are
+--  provided for instantiating Xilinx primitive components.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity shift is
+    generic (SHIFT_WIDTH : integer :=8);
+    Port ( clk : in std_logic;
+           en : in std_logic;	  --shift enable,active high
+           si : in std_logic;
+           q : out std_logic_vector(SHIFT_WIDTH-1 downto 0));
+end shift;
+
+architecture DASS of shift is
+   signal shift_reg : std_logic_vector(SHIFT_WIDTH-1 downto 0);
+begin
+   process(clk)
+   begin
+      if clk'event and clk='1' then
+         if en='1' then
+            shift_reg<=shift_reg(SHIFT_WIDTH-2 downto 0) & si;
+         end if;
+      end if;
+   end process;
+   q<=shift_reg;
+end DASS;

@@ -1,0 +1,189 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 1991-2013 Altera Corporation
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, Altera MegaCore Function License 
+Agreement, or other applicable license agreement, including, 
+without limitation, that your use is for the sole purpose of 
+programming logic devices manufactured by Altera and sold by 
+Altera or its authorized distributors.  Please refer to the 
+applicable agreement for further details.
+*/
+(header "graphic" (version "1.4"))
+(symbol
+	(rect 432 216 728 456)
+	(text "bus_switch" (rect 5 0 59 12)(font "Arial" ))
+	(text "inst" (rect 8 224 25 236)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "reset" (rect 0 0 24 12)(font "Arial" ))
+		(text "reset" (rect 21 27 45 39)(font "Arial" ))
+		(line (pt 0 32)(pt 16 32))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "sw_en" (rect 0 0 30 12)(font "Arial" ))
+		(text "sw_en" (rect 21 43 51 55)(font "Arial" ))
+		(line (pt 0 48)(pt 16 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "ce_wr" (rect 0 0 28 12)(font "Arial" ))
+		(text "ce_wr" (rect 21 59 49 71)(font "Arial" ))
+		(line (pt 0 64)(pt 16 64))
+	)
+	(port
+		(pt 0 80)
+		(input)
+		(text "oe_wr" (rect 0 0 28 12)(font "Arial" ))
+		(text "oe_wr" (rect 21 75 49 87)(font "Arial" ))
+		(line (pt 0 80)(pt 16 80))
+	)
+	(port
+		(pt 0 96)
+		(input)
+		(text "we_wr" (rect 0 0 29 12)(font "Arial" ))
+		(text "we_wr" (rect 21 91 50 103)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "addr_wr[addr_width-1..0]" (rect 0 0 119 12)(font "Arial" ))
+		(text "addr_wr[addr_width-1..0]" (rect 21 107 140 119)(font "Arial" ))
+		(line (pt 0 112)(pt 16 112)(line_width 3))
+	)
+	(port
+		(pt 0 128)
+		(input)
+		(text "data_wr[7..0]" (rect 0 0 63 12)(font "Arial" ))
+		(text "data_wr[7..0]" (rect 21 123 84 135)(font "Arial" ))
+		(line (pt 0 128)(pt 16 128)(line_width 3))
+	)
+	(port
+		(pt 0 144)
+		(input)
+		(text "ce_rd" (rect 0 0 27 12)(font "Arial" ))
+		(text "ce_rd" (rect 21 139 48 151)(font "Arial" ))
+		(line (pt 0 144)(pt 16 144))
+	)
+	(port
+		(pt 0 160)
+		(input)
+		(text "oe_rd" (rect 0 0 27 12)(font "Arial" ))
+		(text "oe_rd" (rect 21 155 48 167)(font "Arial" ))
+		(line (pt 0 160)(pt 16 160))
+	)
+	(port
+		(pt 0 176)
+		(input)
+		(text "we_rd" (rect 0 0 28 12)(font "Arial" ))
+		(text "we_rd" (rect 21 171 49 183)(font "Arial" ))
+		(line (pt 0 176)(pt 16 176))
+	)
+	(port
+		(pt 0 192)
+		(input)
+		(text "addr_rd[addr_width-1..0]" (rect 0 0 118 12)(font "Arial" ))
+		(text "addr_rd[addr_width-1..0]" (rect 21 187 139 199)(font "Arial" ))
+		(line (pt 0 192)(pt 16 192)(line_width 3))
+	)
+	(port
+		(pt 296 32)
+		(output)
+		(text "data_rd[7..0]" (rect 0 0 62 12)(font "Arial" ))
+		(text "data_rd[7..0]" (rect 223 27 285 39)(font "Arial" ))
+		(line (pt 296 32)(pt 280 32)(line_width 3))
+	)
+	(port
+		(pt 296 48)
+		(output)
+		(text "ce_r1" (rect 0 0 27 12)(font "Arial" ))
+		(text "ce_r1" (rect 253 43 280 55)(font "Arial" ))
+		(line (pt 296 48)(pt 280 48))
+	)
+	(port
+		(pt 296 64)
+		(output)
+		(text "oe_r1" (rect 0 0 27 12)(font "Arial" ))
+		(text "oe_r1" (rect 253 59 280 71)(font "Arial" ))
+		(line (pt 296 64)(pt 280 64))
+	)
+	(port
+		(pt 296 80)
+		(output)
+		(text "we_r1" (rect 0 0 28 12)(font "Arial" ))
+		(text "we_r1" (rect 252 75 280 87)(font "Arial" ))
+		(line (pt 296 80)(pt 280 80))
+	)
+	(port
+		(pt 296 96)
+		(output)
+		(text "addr_r1[addr_width-1..0]" (rect 0 0 118 12)(font "Arial" ))
+		(text "addr_r1[addr_width-1..0]" (rect 176 91 294 103)(font "Arial" ))
+		(line (pt 296 96)(pt 280 96)(line_width 3))
+	)
+	(port
+		(pt 296 128)
+		(output)
+		(text "ce_r2" (rect 0 0 27 12)(font "Arial" ))
+		(text "ce_r2" (rect 253 123 280 135)(font "Arial" ))
+		(line (pt 296 128)(pt 280 128))
+	)
+	(port
+		(pt 296 144)
+		(output)
+		(text "oe_r2" (rect 0 0 27 12)(font "Arial" ))
+		(text "oe_r2" (rect 253 139 280 151)(font "Arial" ))
+		(line (pt 296 144)(pt 280 144))
+	)
+	(port
+		(pt 296 160)
+		(output)
+		(text "we_r2" (rect 0 0 28 12)(font "Arial" ))
+		(text "we_r2" (rect 252 155 280 167)(font "Arial" ))
+		(line (pt 296 160)(pt 280 160))
+	)
+	(port
+		(pt 296 176)
+		(output)
+		(text "addr_r2[addr_width-1..0]" (rect 0 0 118 12)(font "Arial" ))
+		(text "addr_r2[addr_width-1..0]" (rect 176 171 294 183)(font "Arial" ))
+		(line (pt 296 176)(pt 280 176)(line_width 3))
+	)
+	(port
+		(pt 296 112)
+		(bidir)
+		(text "data_r1[7..0]" (rect 0 0 62 12)(font "Arial" ))
+		(text "data_r1[7..0]" (rect 226 107 288 119)(font "Arial" ))
+		(line (pt 296 112)(pt 280 112)(line_width 3))
+	)
+	(port
+		(pt 296 192)
+		(bidir)
+		(text "data_r2[7..0]" (rect 0 0 62 12)(font "Arial" ))
+		(text "data_r2[7..0]" (rect 225 187 287 199)(font "Arial" ))
+		(line (pt 296 192)(pt 280 192)(line_width 3))
+	)
+	(parameter
+		"ADDR_WIDTH"
+		"12"
+		""
+		(type "PARAMETER_SIGNED_DEC")	)
+	(drawing
+		(rectangle (rect 16 16 280 224))
+	)
+	(annotation_block (parameter)(rect 728 184 928 216))
+)

@@ -1,0 +1,6 @@
+
+State Machine - |ad_interface|state
+Name state.recv state.waitrecv state.idle 
+state.idle 0 0 0 
+state.waitrecv 0 1 1 
+state.recv 1 0 1 

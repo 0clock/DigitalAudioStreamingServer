@@ -1,0 +1,248 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+--  Uncomment the following lines to use the declarations that are
+--  provided for instantiating Xilinx primitive components.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity ad_interface is
+    Port ( reset : in std_logic;
+           clk : in std_logic;
+           sys_en : in std_logic;
+           sd0 : in std_logic;
+           sd1 : in std_logic;
+           sck : out std_logic;
+           bck : out std_logic;
+           lrck : out std_logic;
+           ds : out std_logic;	   -- data valid stobe, high edge active
+           hlb : out std_logic;
+           lrc : out std_logic;
+           data0 : out std_logic_vector(7 downto 0);
+           data1 : out std_logic_vector(7 downto 0));
+end ad_interface;
+
+architecture Behavioral of ad_interface is
+------------------------------------------------------------------------------
+   ------------- constant definition -------------------
+   -----------------------------------------------------
+   constant RESET_ACTIVE : std_logic := '0';
+   constant SHIFT_WIDTH  : integer   := 8;   -- Shift register width
+   -----------------------------------------------------
+   ------------- type declaration ----------------------
+   -----------------------------------------------------
+   type t_recv_state is (idle,waitrecv,recv);
+   -----------------------------------------------------
+   ------------- signal definition ---------------------
+   -----------------------------------------------------
+   signal state : t_recv_state;
+
+   signal s_sck,s_bck,s_lrck : std_logic; -- The internal sck,bck and lrck signal
+   signal s_bck_d,s_lrck_d : std_logic;	-- The delayed version of internal bck and lrck
+   signal s_tick : std_logic;
+   signal s_shift_reg_en : std_logic;
+   signal s_sd0,s_sd1 : std_logic;
+   signal s_shift_reg0,s_shift_reg1 : std_logic_vector(SHIFT_WIDTH-1 downto 0);
+
+   signal s_data0,s_data1 : std_logic_vector(SHIFT_WIDTH-1 downto 0); -- These registers can be removed
+   
+   signal s_ds : std_logic;
+   signal s_hlb,s_lrc : std_logic;
+   -----------------------------------------------------
+   ------------- component declaration -----------------
+   -----------------------------------------------------
+   component clk_gen is
+       Port ( reset : in std_logic;
+           clk : in std_logic;
+           sck : out std_logic;    -- AD system clock 
+           bck : out std_logic;    -- AD bit clock
+           lrck : out std_logic;   -- AD sample clock
+           tick : out std_logic);	-- the position of 1/4 lrck,active high				 
+   end component;
+
+   component shift is
+      generic (SHIFT_WIDTH : integer :=8);
+      Port ( clk : in std_logic;
+           en : in std_logic;	  --shift enable,active high
+           si : in std_logic;
+           q : out std_logic_vector(SHIFT_WIDTH-1 downto 0));
+   end component;
+    -----------------------------------------------------
+------------------------------------------------------------------------------
+begin
+------------------------------------------------------------------------------
+   -------------------------------------------------------
+   ----------- Output the clock signal -------------------
+   -------------------------------------------------------
+   sck  <= s_sck;
+   bck  <= s_bck;
+   lrck <= s_lrck;
+   -------------------------------------------------------
+   --- the process to delay the internal bck and lrck ----
+   -------------------------------------------------------
+   process(reset,clk)
+   begin
+      if reset = RESET_ACTIVE then
+	    s_bck_d  <= '0';
+	    s_lrck_d <= '0';
+      elsif clk'event and clk = '1' then
+	    s_bck_d  <= s_bck;
+	    s_lrck_d <= s_lrck;
+      end if;
+   end process; 
+   -------------------------------------------------------
+   ------ The process to sample the sd0 and sd1 signal----
+   -------------------------------------------------------
+   process(reset,clk)
+   begin
+      if reset = RESET_ACTIVE then
+	    s_sd0 <= '0';
+	    s_sd1 <= '0';
+      elsif clk'event and clk = '1' then
+	    s_sd0 <= sd0;
+	    s_sd1 <= sd1;
+      end if;
+   end process; 
+   -------------------------------------------------------
+   ----------- The recieve maim state machine ------------
+   -------------------------------------------------------
+   process(reset,clk)
+   begin
+      if reset = RESET_ACTIVE then
+	    state <= idle;
+	 elsif clk'event and clk = '1' then
+	    case state is
+	       when idle     =>
+		                  if sys_en = '1' then
+					      state <= waitrecv;
+                            else
+					      state <= idle;
+                            end if;
+            when waitrecv =>
+		                  if s_lrck = '1' and s_lrck_d = '0' then
+					      state <= recv;
+                            else
+					      state <= waitrecv;
+                            end if;
+            when recv     =>
+		                  if s_lrck = '1' and s_lrck_d = '0' and sys_en = '0' then
+					      state <= idle;
+                            else
+					      state <= recv;
+                            end if;
+	     
+		  when others   =>
+		                  state <= idle;
+         end case;
+	 end if;
+   end process;
+   ----------- the state machine output ------------------
+   process(reset,clk)
+   variable temp : std_logic_vector(2 downto 0);
+   begin
+      if reset = RESET_ACTIVE then
+	    s_ds <= '0';
+	    s_hlb <= '0';
+	    s_lrc <= '0';
+	    s_data0 <= (others => '0');
+	    s_data1 <= (others => '0');
+      elsif clk'event and clk = '1' then
+	    if state = recv then
+	       temp := s_lrck & s_lrck_d & s_tick;
+		  case temp is 
+		     when "111" =>	  -- left channel,high byte
+			             s_ds <= '1';
+					   s_data0 <= s_shift_reg0;
+					   s_data1 <= s_shift_reg1;
+					   s_hlb <= '1';
+					   s_lrc <= '0';  
+		     when "001" =>	  -- right channel,high byte
+			             s_ds <= '1';
+					   s_data0 <= s_shift_reg0;
+					   s_data1 <= s_shift_reg1;
+					   s_hlb <= '1';
+					   s_lrc <= '1';
+		     when "010" =>	  -- left channel,low byte
+			             s_ds <= '1';
+					   s_data0 <= s_shift_reg0;
+					   s_data1 <= s_shift_reg1;
+					   s_hlb <= '0';
+					   s_lrc <= '0';
+		     when "100" =>	  -- right channel,low byte
+			             s_ds <= '1';
+					   s_data0 <= s_shift_reg0;
+					   s_data1 <= s_shift_reg1;
+					   s_hlb <= '0';
+					   s_lrc <= '1';
+		     when others =>	  
+			             s_ds <= '0';
+					   s_data0 <= s_data0;
+					   s_data1 <= s_data1;
+					   s_hlb <= s_hlb;
+					   s_lrc <= s_lrc;
+            end case;
+         else
+	       s_ds <= '0';
+		  s_data0 <= (others => '0');
+		  s_data1 <= (others => '0');
+		  s_hlb <= '0';
+		  s_lrc <= '0';
+	    end if;
+	 end if;
+   end process;
+   -------------------------------------------------------
+   ------------ shift reg enable control -----------------
+   process(state, s_bck, s_bck_d)
+   begin
+      if state = recv and s_bck = '1' and s_bck_d = '0' then
+	    s_shift_reg_en <= '1';
+      else 
+	    s_shift_reg_en <= '0';
+      end if;
+   end process;
+   -------------------------------------------------------
+   ------ Output to the ram_interface --------------------
+   -------------------------------------------------------
+   lrc <= s_lrc;
+   hlb <= s_hlb;
+   data0 <= s_data0;
+   data1 <= s_data1;
+   ------ Let ds delay one clk cycle than the lrc,hlb,data0 and data1
+   process(reset,clk)
+   begin
+      if reset = RESET_ACTIVE then
+	    ds <= '0';
+      elsif clk'event and clk = '1' then
+	    ds <= s_ds;
+      end if;
+   end process; 
+   -------------------------------------------------------
+   -------------- component instantiation ----------------
+   -------------------------------------------------------
+   clk_inst : clk_gen
+       Port map(reset => reset,
+                clk   => clk,
+                sck   => s_sck,    -- AD system clock 
+                bck   => s_bck,    -- AD bit clock
+                lrck  => s_lrck,   -- AD sample clock
+                tick  => s_tick);	-- the position of 1/4 lrck,active high	
+
+   --------shift register instantiation-------------------
+   shift_reg0_inst : shift 
+                   generic map(SHIFT_WIDTH => SHIFT_WIDTH)
+			    port map(clk => clk,
+					   en  => s_shift_reg_en,
+					   si  => s_sd0,
+					   q   => s_shift_reg0);
+
+   
+   shift_reg1_inst : shift
+                   generic map(SHIFT_WIDTH => SHIFT_WIDTH)
+                   port map(clk => clk,
+					   en  => s_shift_reg_en,
+					   si  => s_sd1,
+					   q   => s_shift_reg1);
+------------------------------------------------------------------------------
+end Behavioral;
